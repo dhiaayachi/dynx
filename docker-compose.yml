@@ -1,0 +1,14 @@
+version : "3"
+services:
+  redis-dyn:
+    image: redis:3
+    volumes:
+      - "redis-vol:/data"
+    deploy:
+      replicas: 1
+  openresty-dyn:
+    image: router
+    ports:
+      - "8666:80"
+volumes:
+  redis-vol:
