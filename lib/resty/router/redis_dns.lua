@@ -36,6 +36,21 @@ function _M.new(self, opts)
   return setmetatable(self, mt)
 end
 
+function _M.set(self, key, upstream, ttl)
+  local prefix = DEFAULT_PREFIX
+  if router.prefix ~= nil then
+    prefix = router.prefix
+  end
+  local prefix_key = prefix..key
+  log_info("key:", prefix..key)
+  local res, err  = client:hmset(prefix_key,"upstream",upstream,"ttl",ttl)
+  log_info("res:", res,"err:",err)
+  if not res or res == ngx.null then
+      return nil, cjson.encode({"Redis api not configured ofr", prefix_key, err})
+  end
+  return res, nil
+end
+
 function _M.lookup(self, key)
   local prefix = DEFAULT_PREFIX
   if router.prefix ~= nil then

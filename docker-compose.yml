@@ -10,5 +10,6 @@ services:
     image: router
     ports:
       - "8666:80"
+      - "8888:8888"
 volumes:
   redis-vol:
