@@ -11,7 +11,7 @@ before_install:
   - docker build -t router .
   - docker pull redis:3
   - mkdir -p redis-vol
-  - docker swarm --init
+  - docker swarm init --advertise-addr 127.0.0.1
 
 script:
   - docker stack deploy -c docker-compose.yml dynx
