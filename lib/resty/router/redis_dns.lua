@@ -51,6 +51,35 @@ function _M.set(self, key, upstream, ttl)
   return res, nil
 end
 
+function _M.unset(self, key)
+  local prefix = DEFAULT_PREFIX
+  if router.prefix ~= nil then
+    prefix = router.prefix
+  end
+  local prefix_key = prefix..key
+  log_info("key:", prefix..key)
+  local ok, err = red:multi()
+  if not ok then
+    ngx.say("failed to run multi: ", err)
+    return
+  end
+  local res, err  = client:hdel(prefix_key,"upstream")
+  log_info("res:", res,"err:",err)
+  if not res or res == ngx.null then
+    return nil, cjson.encode({"Redis api not configured 1 for", prefix_key, err})
+  end
+  local res, err  = client:hdel(prefix_key,"ttl")
+  log_info("res:", res,"err:",err)
+  if not res or res == ngx.null then
+    return nil, cjson.encode({"Redis api not configured 2 for", prefix_key, err})
+  end
+  res, err = red:exec()
+  if not res or res == ngx.null then
+    return nil, cjson.encode({"Redis api not configured 3 for", prefix_key, err})
+  end
+  return res, nil
+end
+
 function _M.lookup(self, key)
   local prefix = DEFAULT_PREFIX
   if router.prefix ~= nil then

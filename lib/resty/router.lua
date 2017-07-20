@@ -72,8 +72,12 @@ function _M.new(self, backend_name, opts)
     return setmetatable(self, mt)
 end
 
-function _M.set_route(self, key, upstream, ttl)
-  return self.backend:set(key, upstream, ttl)
+function _M.set_route(self, key)
+  return self.backend:set(key)
+end
+
+function _M.unset_route(self, key, upstream, ttl)
+  return self.backend:unset(key)
 end
 
 function _M.get_route(self, key)
