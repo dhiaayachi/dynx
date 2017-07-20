@@ -1,4 +1,6 @@
 # dynx
+![Alt text](https://travis-ci.org/travis-ci/travis-web.svg?branch=master "Optional title")
+
 Dynamic Docker friendly gateway  
 
 The purpose of the project is to provide a dynamically configurable gateway that is easilly deployable in a docker swarm enviroment.
