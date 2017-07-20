@@ -13,4 +13,4 @@ before_install:
   - mkdir -p redis-vol
 
 script:
-  - docker stack deploy --compose docker-compose.yml dynx
+  - docker stack deploy -c docker-compose.yml dynx
