@@ -1,4 +1,7 @@
 sudo: required
+language: python
+python:
+  - "3.5"
 
 services:
   - docker
@@ -15,3 +18,5 @@ before_install:
 
 script:
   - docker stack deploy -c docker-compose.yml dynx
+  - sleep 30
+  - python test/test_integration.py
