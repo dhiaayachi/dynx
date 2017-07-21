@@ -1,5 +1,5 @@
 # dynx
-![Alt text](https://travis-ci.org/travis-ci/travis-web.svg?branch=master "Optional title")
+[![Build Status](https://travis-ci.org/dhiaayachi/dynx.svg?branch=master)](https://travis-ci.org/dhiaayachi/dynx)
 
 Dynamic Docker friendly gateway  
 
