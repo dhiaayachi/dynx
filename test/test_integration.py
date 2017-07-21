@@ -13,7 +13,12 @@ class TestStringMethods(unittest.TestCase):
     def test_200NoConfig(self):
         connRouter = http.client.HTTPConnection("localhost", 8666)
         connConfig = http.client.HTTPConnection("localhost", 8888)
-        connConfig.request("GET","/configure?location=/google&upstream=http://www.google.com&ttl=10")
+        params = {
+        'location': '/google',
+        'upstream': 'ttp://www.google.com/',
+        'ttl': '10'
+        }
+        connConfig.request("GET","/configure",params=params)
         response = connConfig.getresponse()
         print("Body:", response.read().decode("utf-8"),"\n")
         #self.assertEqual(response.status, 200)
