@@ -16,7 +16,7 @@ class TestStringMethods(unittest.TestCase):
         connConfig = http.client.HTTPConnection("localhost", 8888)
         connConfig.request("GET","/configure?location=/google&upstream=http://www.google.com&ttl=10")
         response = connConfig.getresponse()
-        print("Body:" + response.read())
+        print("Body:" + response.read().decode("utf-8"))
         self.assertEqual(response.status, 200)
         connRouter.request("GET", "/google")
         response = connRouter.getresponse()
