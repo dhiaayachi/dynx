@@ -10,8 +10,8 @@ if method == ngx.HTTP_DELETE then
 end
 
 if not ok then
-    ngx.status = 404
+    ngx.status = 500
     ngx.say(err)
-    return ngx.exit(404)
+    return ngx.exit(500)
 end
 ngx.var.rr_status = ok
