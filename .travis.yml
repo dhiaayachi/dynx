@@ -19,4 +19,5 @@ before_install:
 script:
   - docker stack deploy -c docker-compose.yml dynx
   - sleep 30
-  - python test/test_integration.py && docker service logs dynx_router
+  - python test/test_integration.py
+  - docker service logs dynx_openresty-dyn
