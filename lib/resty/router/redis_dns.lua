@@ -58,7 +58,7 @@ function _M.unset(self, key)
   end
   local prefix_key = prefix..key
   log_info("key:", prefix..key)
-  local ok, err = red:multi()
+  local ok, err = client:multi()
   if not ok then
     ngx.say("failed to run multi: ", err)
     return
@@ -73,11 +73,11 @@ function _M.unset(self, key)
   if not res or res == ngx.null then
     return nil, cjson.encode({"Redis api not configured 2 for", prefix_key, err})
   end
-  res, err = red:exec()
+  res, err = client:exec()
   if not res or res == ngx.null then
     return nil, cjson.encode({"Redis api not configured 3 for", prefix_key, err})
   end
-  return res, nil
+  return cjson.encode(res), nil
 end
 
 function _M.lookup(self, key)
