@@ -24,7 +24,7 @@ local log_err = router.log_err
 local MINIMUM_TTL = router.MINIMUM_TTL
 local DEFAULT_PREFIX = "resty_route:"
 local client = nil
-function _M.new(self, opts)
+function _M.new(self, opts,index)
   local redis  = require "resty.redis"
   client = redis:new()
   client:set_timeout(1000)
@@ -34,6 +34,7 @@ function _M.new(self, opts)
   --    ngx.say("failed to connect: ", err)
   --    ngx.exit(ngx.HTTP_NOT_FOUND)
   -- end
+  client:select(index)
   return setmetatable(self, mt)
 end
 
@@ -79,6 +80,26 @@ function _M.unset(self, key)
     return nil, cjson.encode({"Redis api not configured 3 for", prefix_key, err})
   end
   return cjson.encode(res), nil
+end
+
+function _M.flushall(self)
+  local ok, err = client:multi()
+  if not ok  then
+    return nil, cjson.encode({"Not able to clear the DB 1 ", err })
+  end
+  ok, err = client:select(1)
+  if not ok or ok == ngx.null then
+    return nil, cjson.encode({"Not able to clear the DB 2 ", err})
+  end
+  ok, err = client:flushdb()
+  if not ok or ok == ngx.null then
+    return nil, cjson.encode({"Not able to clear the DB 3 ", err})
+  end
+  ok, err = client:exec()
+  if not ok or ok == ngx.null then
+    return nil, cjson.encode({"Redis api not configured 4 ", err})
+  end
+  return cjson.encode(ok), nil
 end
 
 function _M.lookup(self, key)

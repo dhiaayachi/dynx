@@ -64,7 +64,7 @@ function _M.new(self, backend_name, opts)
       end
     end
     local backend_class = require(backend_name)
-    local backend = backend_class:new(opts)
+    local backend = backend_class:new(opts,1)
     local self = {
         backend = backend,
         opts = opts_cache,
@@ -78,6 +78,10 @@ end
 
 function _M.unset_route(self, key)
   return self.backend:unset(key)
+end
+
+function _M.flushall(self)
+  return self.backend:flushall()
 end
 
 function _M.get_route(self, key)

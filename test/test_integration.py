@@ -2,40 +2,56 @@ import unittest
 import http.client
 import time
 
-class TestStringMethods(unittest.TestCase):
+class TestUtils:
+    def sendRequest(host, port, method, path):
+        conn = http.client.HTTPConnection(host, port)
+        conn.request(method, path)
+        response = conn.getresponse()
+        data = response.read()
+        conn.close()
+        return response, data
+
+
+class TestDynxConfig(unittest.TestCase):
 
     def test_404NoConfig(self):
-        connRouter = http.client.HTTPConnection("localhost", 8666)
-        connConfig = http.client.HTTPConnection("localhost", 8888)
-        connRouter.request("GET", "/httpbin")
-        response = connRouter.getresponse()
-        data = response.read()
-        connRouter.close()
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
         self.assertEqual(response.status, 404)
 
     def test_200WithConfig(self):
-        connConfig = http.client.HTTPConnection("localhost", 8888)
-        connConfig.request("GET","/configure?location=/httpbin&upstream=http://httpbin.org/anything&ttl=10")
-        response = connConfig.getresponse()
-        data = response.read()
-        connConfig.close()
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin&upstream=http://httpbin.org/anything&ttl=10")
         self.assertEqual(response.status, 200)
 
-        connRouter = http.client.HTTPConnection("localhost", 8666)
-        connRouter.request("GET", "/httpbin")
-        response = connRouter.getresponse()
-        data = response.read()
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
         self.assertEqual(response.status, 200)
-        connRouter.close()
 
-        connConfig2 = http.client.HTTPConnection("localhost", 8888)
-        connConfig2.request("DELETE","/configure?location=/httpbin")
-        response2 = connConfig2.getresponse()
-        data = response2.read()
-        self.assertEqual(response2.status, 200)
-        connConfig2.close()
+        response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?location=/httpbin")
+        self.assertEqual(response.status, 200)
         time.sleep(20)
-        
+
+    def test_flushAll(self):
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin2&upstream=http://httpbin.org/anything&ttl=10")
+        self.assertEqual(response.status, 200)
+
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbinip&upstream=http://httpbin.org/anything&ttl=10")
+        self.assertEqual(response.status, 200)
+
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin2")
+        self.assertEqual(response.status, 200)
+
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbinip")
+        self.assertEqual(response.status, 200)
+
+        response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?flushall=true")
+        self.assertEqual(response.status, 200)
+        time.sleep(20)
+
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
+        self.assertEqual(response.status, 404)
+
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbinip")
+        self.assertEqual(response.status, 404)
+
 
 
 

@@ -8,7 +8,11 @@ if method == "GET" then
   ok, err = r:set_route(ngx.var.arg_location,ngx.var.arg_upstream,ngx.var.arg_ttl)
 end
 if method == "DELETE" then
-  ok, err = r:unset_route(ngx.var.arg_location)
+  if ngx.var.arg_flushall and ngx.var.arg_flushall == "true" then
+    ok, err = r:flushall(ngx.var.arg_location)
+  else
+    ok, err = r:unset_route(ngx.var.arg_location)
+  end
 end
 
 if not ok then
