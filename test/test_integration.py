@@ -19,7 +19,7 @@ class TestDynxConfig(unittest.TestCase):
         self.assertEqual(response.status, 404)
 
     def test_200WithConfig(self):
-        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin&upstream=http://httpbin.org/anything&ttl=10")
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin&upstream=http://httpbin.org/anything&ttl=5")
         self.assertEqual(response.status, 200)
 
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
@@ -27,13 +27,13 @@ class TestDynxConfig(unittest.TestCase):
 
         response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?location=/httpbin")
         self.assertEqual(response.status, 200)
-        time.sleep(20)
+        time.sleep(8)
 
     def test_flushAll(self):
-        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin2&upstream=http://httpbin.org/anything&ttl=10")
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin2&upstream=http://httpbin.org/anything&ttl=5")
         self.assertEqual(response.status, 200)
 
-        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbinip&upstream=http://httpbin.org/anything&ttl=10")
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbinip&upstream=http://httpbin.org/anything&ttl=5")
         self.assertEqual(response.status, 200)
 
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin2")
@@ -44,7 +44,7 @@ class TestDynxConfig(unittest.TestCase):
 
         response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?flushall=true")
         self.assertEqual(response.status, 200)
-        time.sleep(20)
+        time.sleep(8)
 
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
         self.assertEqual(response.status, 404)
