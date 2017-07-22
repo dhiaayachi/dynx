@@ -44,7 +44,7 @@ function _M.set(self, key, upstream, ttl)
   local prefix_key = prefix..key
   log_info("key:", prefix..key)
   local res, err  = client:hmset(prefix_key,"upstream",upstream,"ttl",ttl)
-  log_info("res:", res,"err:",err)
+  log_info("res:", res,"err:",err,"p:",prefix_key,"u:",upstream,"t",ttl)
   if not res or res == ngx.null then
       return nil, cjson.encode({"Redis api not configured ofr", prefix_key, err})
   end

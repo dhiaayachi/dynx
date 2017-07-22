@@ -9,9 +9,8 @@ class TestStringMethods(unittest.TestCase):
         connConfig = http.client.HTTPConnection("localhost", 8888)
         connRouter.request("GET", "/google2")
         response = connRouter.getresponse()
-        self.assertEqual(response.status, 404)
         connRouter.close()
-        connConfig.close()
+        self.assertEqual(response.status, 404)
 
     def test_200WithConfig(self):
         
