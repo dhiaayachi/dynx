@@ -12,12 +12,13 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y install docker-ce
   - docker build -t router .
-  - docker pull redis:3
+  - docker pull redis:4.0-alpine
   - mkdir -p redis-vol
   - docker swarm init --advertise-addr 127.0.0.1
-
-script:
+install:
   - docker stack deploy -c docker-compose.yml dynx
   - sleep 30
+
+script:
   - python test/test_integration.py
   - docker service logs dynx_openresty-dyn
