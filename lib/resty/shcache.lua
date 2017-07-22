@@ -529,21 +529,27 @@ local function load(self, key)
       _save_positive(self, key, data, ttl)
       return _return(self, data)
    else
-      ngx.log(ngx.WARN, 'external lookup failed: ', err)
-   end
+     if err then
+       -- external lookup failed
+       -- attempt to load stale data
+       ngx.log(ngx.WARN, 'external lookup failed: ', err)
+       data, flags = _get_stale(self)
+       if data and not _is_empty(data, flags) then
+         -- hit_stale + valid (positive) data
 
-   -- external lookup failed
-   -- attempt to load stale data
-   data, flags = _get_stale(self)
-   if data and not _is_empty(data, flags) then
-      -- hit_stale + valid (positive) data
-
-      flags = _save_actualize(self, key, data, flags)
-      -- unlock before de-serializing data
-      _unlock(self)
-      data = _process_cached_data(self, data, flags)
-      return _return(self, data)
+         flags = _save_actualize(self, key, data, flags)
+         -- unlock before de-serializing data
+         _unlock(self)
+         data = _process_cached_data(self, data, flags)
+         return _return(self, data)
+       end
+     end
+     -- data not available just mark it as negative
    end
+  
+
+  
+   
 
    if DEBUG and data then
       -- there is data, but it failed _is_empty() => stale negative data

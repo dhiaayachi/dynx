@@ -27,12 +27,13 @@ local client = nil
 function _M.new(self, opts)
   local redis  = require "resty.redis"
   client = redis:new()
+  client:set_timeout(1000)
   local ok, err = client:connect("redis-dyn", 6379)
-  if not ok then
-      ngx.status = 503
-      ngx.say("failed to connect: ", err)
-      ngx.exit(ngx.HTTP_NOT_FOUND)
-  end
+  --if not ok then
+  --    ngx.status = 503
+  --    ngx.say("failed to connect: ", err)
+  --    ngx.exit(ngx.HTTP_NOT_FOUND)
+  -- end
   return setmetatable(self, mt)
 end
 
@@ -92,7 +93,7 @@ function _M.lookup(self, key)
       return nil, cjson.encode({"Redis query failure", prefix_key, err})
   end
   if answers[1] == ngx.null then
-      return nil, cjson.encode({"Redis api not found", prefix_key, err})
+      return nil, nil
   end
 
   local routes = {}
