@@ -23,9 +23,12 @@ The current solution is based on https://github.com/tes/lua-resty-router
   
 ### TODO
 - Update the README to add a demo and how to deploy
-- Add the ability to remove an upstream
-- Add the ability to configure multiple end points for one upstream
-- Add a pipeling with tests (specially for LUA scripting)
+- ~~Add the ability to remove a location~~
+- Add the ability to configure multiple upstream for one location (load balancing)
+- ~~Add a pipeling with tests (specially for LUA scripting)~~
+- Add the ability to delete all locations
+- Add unit test framework for the lua libraries
+- Write documentation with examples and use cases
 - ...
 
 
