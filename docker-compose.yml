@@ -1,7 +1,7 @@
 version : "3"
 services:
   redis-dyn:
-    image: redis:3
+    image: redis:4
     volumes:
       - "redis-vol:/data"
     deploy:
