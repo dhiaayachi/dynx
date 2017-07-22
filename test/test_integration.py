@@ -7,13 +7,12 @@ class TestStringMethods(unittest.TestCase):
     def test_404NoConfig(self):
         connRouter = http.client.HTTPConnection("localhost", 8666)
         connConfig = http.client.HTTPConnection("localhost", 8888)
-        connRouter.request("GET", "/google2")
+        connRouter.request("GET", "/google")
         response = connRouter.getresponse()
         connRouter.close()
         self.assertEqual(response.status, 404)
 
     def test_200WithConfig(self):
-        
         connConfig = http.client.HTTPConnection("localhost", 8888)
         connConfig.request("GET","/configure?location=/google&upstream=http://www.google.com/&ttl=10")
         response = connConfig.getresponse()
