@@ -24,6 +24,7 @@ before_install:
   - docker pull redis:4.0-alpine
   - mkdir -p redis-vol
   - docker swarm init --advertise-addr 127.0.0.1
+  - luacheck upstream_*.lua resty --globals ngx
 install:
   - docker stack deploy -c docker-compose.yml dynx
   - sleep 30
