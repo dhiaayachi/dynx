@@ -33,7 +33,7 @@ script:
 after_success:
   - ID=$(docker ps --quiet --filter ancestor=router:latest)
   - docker exec -it $ID luacov
-  - docker exec -it $ID luacov-coveralls
+  - docker exec -it $ID luacov-coveralls -t $COVER_ALL_TOKEN
   - docker login -u="$DockerUser" -p="$DockerPass"
   - docker tag router dhiaayachi/dynx:latest
   - docker push dhiaayachi/dynx:latest
