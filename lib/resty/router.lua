@@ -69,6 +69,27 @@ function _M.new(self, backend_name, opts)
         backend = backend,
         opts = opts_cache,
     }
+    self.lookup_route = function(key)
+      local lookup = function(key)
+        return self.backend:lookup(key)
+      end
+      local cache = shcache:new(
+        ngx.shared.cache_dict,
+        {
+          external_lookup = lookup,
+          external_lookup_arg = key,
+          encode = cjson.encode,
+          decode = cjson.decode,
+        },
+        {
+          positive_ttl = self.opts.positive_ttl,
+          negative_ttl = self.opts.negative_ttl,
+          actualize_ttl = self.opts.actualize_ttl,
+          name = "resty_router_cache",
+        }
+      )
+      return cache:load(key)
+    end
     return setmetatable(self, mt)
 end
 
@@ -85,28 +106,7 @@ function _M.flushall(self)
 end
 
 function _M.get_route(self, key)
-    local lookup_route = function(key)
-        local lookup = function(key)
-            return self.backend:lookup(key)
-        end
-        local cache = shcache:new(
-            ngx.shared.cache_dict,
-            {
-                external_lookup = lookup,
-                external_lookup_arg = key,
-                encode = cjson.encode,
-                decode = cjson.decode,
-            },
-            {
-                positive_ttl = self.opts.positive_ttl,
-                negative_ttl = self.opts.negative_ttl,
-                actualize_ttl = self.opts.actualize_ttl,
-                name = "resty_router_cache",
-            }
-        )
-        return cache:load(key)
-    end
-    local routes = lookup_route(key)
+    local routes = self.lookup_route(key)
     if not routes or 0 == #routes then
         return nil
     end
