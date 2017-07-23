@@ -1,5 +1,10 @@
 local router = require "dynx.resty.router"
-local r = router:new("dynx.resty.router.redis_dns")
+local opts = {
+  positive_ttl = 5,
+  negative_ttl = 5,
+  actualize_ttl = 5,
+}
+local r = router:new("dynx.resty.router.redis_dns",opts)
 
 local method = ngx.req.get_method()
 local ok = nil

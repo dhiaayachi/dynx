@@ -10,12 +10,14 @@ if not ok then
 end
 
 local router = require "dynx.resty.router"
-local log_info = router.log_info
-local log_warn = router.log_warn
-local log_err = router.log_err
 local MINIMUM_TTL = router.MINIMUM_TTL
 local DEFAULT_PREFIX = "resty_route:"
 local client = nil
+
+local function log(log_level, ...)
+  ngx.log(log_level, "router: " .. cjson.encode({...}))
+end
+  
 function _M.new(self, opts,index)
   local redis  = require "resty.redis"
   client = redis:new()
@@ -36,9 +38,9 @@ function _M.set(self, key, upstream, ttl)
     prefix = router.prefix
   end
   local prefix_key = prefix..key
-  log_info("key:", prefix..key)
+  log(ngx.INFO,"key:", prefix..key)
   local res, err  = client:hmset(prefix_key,"upstream",upstream,"ttl",ttl)
-  log_info("res:", res,"err:",err,"p:",prefix_key,"u:",upstream,"t",ttl)
+  log(ngx.INFO,"res:", res,"err:",err,"p:",prefix_key,"u:",upstream,"t",ttl)
   if not res or res == ngx.null then
       return nil, cjson.encode({"Redis api not configured ofr", prefix_key, err})
   end
@@ -51,19 +53,19 @@ function _M.unset(self, key)
     prefix = router.prefix
   end
   local prefix_key = prefix..key
-  log_info("key:", prefix..key)
+  log(ngx.INFO,"key:", prefix..key)
   local ok, err = client:multi()
   if not ok then
     ngx.say("failed to run multi: ", err)
     return
   end
   local res, err  = client:hdel(prefix_key,"upstream")
-  log_info("res:", res,"err:",err)
+  log(ngx.INFO,"res:", res,"err:",err)
   if not res or res == ngx.null then
     return nil, cjson.encode({"Redis api not configured 1 for", prefix_key, err})
   end
   local res, err  = client:hdel(prefix_key,"ttl")
-  log_info("res:", res,"err:",err)
+  log(ngx.INFO,"res:", res,"err:",err)
   if not res or res == ngx.null then
     return nil, cjson.encode({"Redis api not configured 2 for", prefix_key, err})
   end
@@ -100,7 +102,7 @@ function _M.lookup(self, key)
     prefix = router.prefix
   end
   local prefix_key = prefix..key
-  log_info("key:", prefix..key)
+  log(ngx.INFO,"key:", prefix..key)
   local answers, err  = client:hmget(prefix_key,"upstream","ttl")
   if not answers or #answers ~= 2 then
       return nil, cjson.encode({"Redis query failure", prefix_key, err})
@@ -112,7 +114,7 @@ function _M.lookup(self, key)
   local routes = {}
   local i = 1
   local ttl = MINIMUM_TTL
-  log_info("Redis response", answers)
+  log(ngx.INFO,"Redis response", answers)
   routes[1] = answers[1]
   if answers[2] ~= ngx.null then
     ttl = answers[2]
