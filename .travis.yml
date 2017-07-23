@@ -33,6 +33,7 @@ script:
 after_success:
   - ID=$(docker ps --quiet --filter ancestor=router:latest)
   - docker cp $ID:/luacov.stats.out .
+  - cat luacov.stats.out
   - luacov-coveralls
   - docker login -u="$DockerUser" -p="$DockerPass"
   - docker tag router dhiaayachi/dynx:latest
