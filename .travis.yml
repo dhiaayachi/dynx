@@ -2,11 +2,26 @@ sudo: required
 language: python
 python:
   - "3.5"
+env:
+  global:
+    - LUAROCKS=2.3.0
+  matrix:
+    - LUA=lua5.1
+    - LUA=lua5.2
+    - LUA=lua5.3
+    - LUA=luajit     # latest stable version (2.0.4)
+    - LUA=luajit2.0  # current head of 2.0 branch
+    - LUA=luajit2.1  # current head of 2.1 branch
 
 services:
   - docker
 
 before_install:
+  - source .travis/setenv_lua.sh
+  - pip install --user cpp-coveralls
+  - luarocks install Lua-cURL         --server=https://luarocks.org/dev
+  - luarocks install luacov-coveralls --server=https://luarocks.org/dev
+  - luarocks install lunitx
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update
@@ -22,6 +37,9 @@ install:
 script:
   - python test/test_integration.py
 after_success:
-  - docker login -u="$DockerUser" -p="$DockerPass"gs
+  - ID=$(docker ps --quiet --filter ancestor=router:latest)
+  - docker cp $ID:/luacov.stats.out .
+  - luacov-coveralls
+  - docker login -u="$DockerUser" -p="$DockerPass"
   - docker tag router dhiaayachi/dynx:latest
   - docker push dhiaayachi/dynx:latest
