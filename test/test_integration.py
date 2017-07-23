@@ -70,6 +70,20 @@ class TestDynxConfig(unittest.TestCase):
         self.assertEqual(response.status, 404)
 
 
+    def test_200WithQueryParams(self):
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbinq&upstream=http://httpbin.org/anything&ttl=5")
+        self.assertEqual(response.status, 200)
+
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbinq?dummyq:true&dummyq2=shoudlwork")
+        self.assertEqual(response.status, 200)
+
+        response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?location=/httpbinq")
+        self.assertEqual(response.status, 200)
+        time.sleep(8)
+
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbinq")
+        self.assertEqual(response.status, 404)
+
 
 
 
