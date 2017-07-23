@@ -29,6 +29,23 @@ class TestDynxConfig(unittest.TestCase):
         self.assertEqual(response.status, 200)
         time.sleep(8)
 
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
+        self.assertEqual(response.status, 404)
+
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin&upstream=http://httpbin.org/anything&ttl=5")
+        self.assertEqual(response.status, 200)
+        time.sleep(10)
+
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
+        self.assertEqual(response.status, 200)
+
+        response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?location=/httpbin")
+        self.assertEqual(response.status, 200)
+        time.sleep(10)
+
+        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
+        self.assertEqual(response.status, 404)
+
     def test_flushAll(self):
         response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin2&upstream=http://httpbin.org/anything&ttl=5")
         self.assertEqual(response.status, 200)

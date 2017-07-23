@@ -23,9 +23,9 @@ local LOG_WARN = ngx.WARN
 -- minimum TTL is 1 second, not 0, due to ngx.shared.DICT.set exptime
 _M.MINIMUM_TTL = 1
 _M.prefix = ngx.var.key_prefix
-local DEFAULT_ACTUALIZE_TTL = 10
-local DEFAULT_NEGATIVE_TTL = 10
-local DEFAULT_POSITIVE_TTL = 60
+local DEFAULT_ACTUALIZE_TTL = 5
+local DEFAULT_NEGATIVE_TTL = 5
+local DEFAULT_POSITIVE_TTL = 5
 
 local function log(log_level, ...)
     ngx.log(log_level, "router: " .. cjson.encode({...}))
