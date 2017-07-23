@@ -4,18 +4,10 @@ local _M = {
 local mt = { __index = _M }
 local setmetatable = setmetatable
 
-local ok, dns = pcall(require, "resty.dns.resolver")
-if not ok then
-    error("resty-dns-resolver module required")
-end
-
 local ok, cjson = pcall(require, "cjson")
 if not ok then
     error("cjson module required")
 end
-
-local RECORD_A = dns.TYPE_A
-local RECORD_SRV = dns.TYPE_SRV
 
 local router = require "resty.router"
 local log_info = router.log_info
