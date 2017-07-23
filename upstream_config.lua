@@ -1,5 +1,5 @@
-local router = require "resty.router"
-local r = router:new("resty.router.redis_dns")
+local router = require "dynx.resty.router"
+local r = router:new("dynx.resty.router.redis_dns")
 
 local method = ngx.req.get_method()
 local ok = nil

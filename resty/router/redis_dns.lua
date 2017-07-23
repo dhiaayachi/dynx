@@ -9,7 +9,7 @@ if not ok then
     error("cjson module required")
 end
 
-local router = require "resty.router"
+local router = require "dynx.resty.router"
 local log_info = router.log_info
 local log_warn = router.log_warn
 local log_err = router.log_err

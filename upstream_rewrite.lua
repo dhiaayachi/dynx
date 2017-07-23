@@ -1,5 +1,5 @@
-local router = require "resty.router"
-local r = router:new("resty.router.redis_dns")
+local router = require "dynx.resty.router"
+local r = router:new("dynx.resty.router.redis_dns")
 local route = r:get_route(ngx.var.request_uri)
 if not route or route == ngx.null then
     return ngx.exit(404)

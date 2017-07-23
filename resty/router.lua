@@ -4,7 +4,7 @@ local _M = {
 local mt = { __index = _M }
 local setmetatable = setmetatable
 
-local ok, shcache = pcall(require, "resty.shcache")
+local ok, shcache = pcall(require, "dynx.resty.shcache")
 if not ok then
     error("lua-resty-shcache module required")
 end
