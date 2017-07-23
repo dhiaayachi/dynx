@@ -21,6 +21,7 @@ install:
 
 script:
   - python test/test_integration.py
-  - docker login -u="$DockerUser" -p="$DockerPass"
+after_success:
+  - docker login -u="$DockerUser" -p="$DockerPass"gs
   - docker tag router dhiaayachi/dynx:latest
   - docker push dhiaayachi/dynx:latest
