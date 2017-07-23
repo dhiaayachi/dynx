@@ -1,6 +1,7 @@
 import unittest
 import http.client
 import time
+import json
 
 class TestUtils:
     def sendRequest(host, port, method, path):
@@ -71,11 +72,14 @@ class TestDynxConfig(unittest.TestCase):
 
 
     def test_200WithQueryParams(self):
-        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbinq&upstream=http://httpbin.org/anything&ttl=5")
+        response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbinq&upstream=http://httpbin.org/get&ttl=5")
         self.assertEqual(response.status, 200)
 
-        response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbinq?dummyq:true&dummyq2=shoudlwork")
+        response, body = TestUtils.sendRequest("localhost",8666,"GET","/httpbinq?dummyq=true&dummyq2=shouldwork")
         self.assertEqual(response.status, 200)
+        body_dict = json.loads(body.decode("utf-8", "replace"))
+        self.assertEqual(body_dict["args"]["dummyq"],"true")
+        self.assertEqual(body_dict["args"]["dummyq2"],"shouldwork")
 
         response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?location=/httpbinq")
         self.assertEqual(response.status, 200)
