@@ -4,10 +4,7 @@ local _M = {
 local mt = { __index = _M }
 local setmetatable = setmetatable
 
-local ok, cjson = pcall(require, "cjson")
-if not ok then
-    error("cjson module required")
-end
+local cjson = require("cjson")
 
 local router = require "dynx.resty.router"
 local MINIMUM_TTL = router.MINIMUM_TTL
@@ -17,25 +14,20 @@ local client = nil
 local function log(log_level, ...)
   ngx.log(log_level, "router: " .. cjson.encode({...}))
 end
-  
-function _M.new(self, opts,index)
+
+function _M.new(self, index)
   local redis  = require "resty.redis"
   client = redis:new()
   client:set_timeout(1000)
-  local ok, err = client:connect("redis-dyn", 6379)
-  --if not ok then
-  --    ngx.status = 503
-  --    ngx.say("failed to connect: ", err)
-  --    ngx.exit(ngx.HTTP_NOT_FOUND)
-  -- end
+  local _, _ = client:connect("redis-dyn", 6379)
   client:select(index)
   return setmetatable(self, mt)
 end
 
-function _M.set(self, key, upstream, ttl)
+function _M.set(key, upstream, ttl, Rprefix)
   local prefix = DEFAULT_PREFIX
-  if router.prefix ~= nil then
-    prefix = router.prefix
+  if Rprefix ~= nil then
+    prefix = Rprefix
   end
   local prefix_key = prefix..key
   log(ngx.INFO,"key:", prefix..key)
@@ -47,24 +39,24 @@ function _M.set(self, key, upstream, ttl)
   return res, nil
 end
 
-function _M.unset(self, key)
+function _M.unset(key,Rprefix)
   local prefix = DEFAULT_PREFIX
-  if router.prefix ~= nil then
-    prefix = router.prefix
+  if Rprefix ~= nil then
+    prefix = Rprefix
   end
   local prefix_key = prefix..key
   log(ngx.INFO,"key:", prefix..key)
-  local ok, err = client:multi()
-  if not ok then
+  local res, err = client:multi()
+  if not res then
     ngx.say("failed to run multi: ", err)
     return
   end
-  local res, err  = client:hdel(prefix_key,"upstream")
+  res, err  = client:hdel(prefix_key,"upstream")
   log(ngx.INFO,"res:", res,"err:",err)
   if not res or res == ngx.null then
     return nil, cjson.encode({"Redis api not configured 1 for", prefix_key, err})
   end
-  local res, err  = client:hdel(prefix_key,"ttl")
+  res, err  = client:hdel(prefix_key,"ttl")
   log(ngx.INFO,"res:", res,"err:",err)
   if not res or res == ngx.null then
     return nil, cjson.encode({"Redis api not configured 2 for", prefix_key, err})
@@ -76,7 +68,7 @@ function _M.unset(self, key)
   return cjson.encode(res), nil
 end
 
-function _M.flushall(self)
+function _M.flushall()
   local ok, err = client:multi()
   if not ok  then
     return nil, cjson.encode({"Not able to clear the DB 1 ", err })
@@ -96,10 +88,10 @@ function _M.flushall(self)
   return cjson.encode(ok), nil
 end
 
-function _M.lookup(self, key)
+function _M.lookup(key, Rprefix)
   local prefix = DEFAULT_PREFIX
-  if router.prefix ~= nil then
-    prefix = router.prefix
+  if Rprefix ~= nil then
+    prefix = Rprefix
   end
   local prefix_key = prefix..key
   log(ngx.INFO,"key:", prefix..key)
@@ -112,7 +104,6 @@ function _M.lookup(self, key)
   end
 
   local routes = {}
-  local i = 1
   local ttl = MINIMUM_TTL
   log(ngx.INFO,"Redis response", answers)
   routes[1] = answers[1]
