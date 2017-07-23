@@ -7,11 +7,6 @@ env:
     - LUAROCKS=2.3.0
   matrix:
     - LUA=lua5.1
-    - LUA=lua5.2
-    - LUA=lua5.3
-    - LUA=luajit     # latest stable version (2.0.4)
-    - LUA=luajit2.0  # current head of 2.0 branch
-    - LUA=luajit2.1  # current head of 2.1 branch
 
 services:
   - docker
@@ -39,7 +34,8 @@ script:
 after_success:
   - ID=$(docker ps --quiet --filter ancestor=router:latest)
   - docker cp $ID:/luacov.stats.out .
-  - luacov-coveralls
+  - coveralls --dump c.report.json
+  - luacov-coveralls -j c.report.json
   - docker login -u="$DockerUser" -p="$DockerPass"
   - docker tag router dhiaayachi/dynx:latest
   - docker push dhiaayachi/dynx:latest
