@@ -32,9 +32,8 @@ script:
   - python test/test_integration.py
 after_success:
   - ID=$(docker ps --quiet --filter ancestor=router:latest)
-  - docker cp $ID:/luacov.stats.out .
-  - cat luacov.stats.out
-  - luacov-coveralls
+  - docker exec -it $ID luacov
+  - docker exec -it $ID luacov-coveralls
   - docker login -u="$DockerUser" -p="$DockerPass"
   - docker tag router dhiaayachi/dynx:latest
   - docker push dhiaayachi/dynx:latest
