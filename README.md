@@ -1,4 +1,5 @@
 # dynx
+-[![Build Status](https://travis-ci.org/dhiaayachi/dynx.svg?branch=master)](https://travis-ci.org/dhiaayachi/dynx)
 [![Coverage Status](https://coveralls.io/repos/github/dhiaayachi/dynx/badge.svg?branch=master)](https://coveralls.io/github/dhiaayachi/dynx?branch=master)
 
 Dynamic Docker friendly gateway  
