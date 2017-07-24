@@ -23,6 +23,5 @@ end
 if not ok then
     ngx.status = 500
     ngx.say(err)
-    return ngx.exit(500)
 end
 ngx.var.rr_status = ok
