@@ -1,5 +1,5 @@
 local _M = {
-    _VERSION = "0.1"
+  _VERSION = "0.1"
 }
 local mt = { __index = _M }
 local setmetatable = setmetatable
@@ -34,7 +34,7 @@ function _M.set(key, upstream, ttl, Rprefix)
   local res, err  = client:hmset(prefix_key,"upstream",upstream,"ttl",ttl)
   log(ngx.INFO,"res:", res,"err:",err,"p:",prefix_key,"u:",upstream,"t",ttl)
   if not res or res == ngx.null then
-      return nil, cjson.encode({"Redis api not configured ofr", prefix_key, err})
+    return nil, cjson.encode({"Redis api not configured ofr", prefix_key, err})
   end
   return res, nil
 end
@@ -97,10 +97,12 @@ function _M.lookup(key, Rprefix)
   log(ngx.INFO,"key:", prefix..key)
   local answers, err  = client:hmget(prefix_key,"upstream","ttl")
   if not answers or #answers ~= 2 then
-      return nil, cjson.encode({"Redis query failure", prefix_key, err})
+    log(ngx.INFO,"1 - ans:", answers,"err:",err)
+    return nil, cjson.encode({"Redis query failure", prefix_key, err}), nil
   end
   if answers[1] == ngx.null then
-      return nil, nil
+    log(ngx.INFO,"2 - ans:", answers,"err:",err)
+    return nil, nil, nil
   end
 
   local routes = {}
@@ -110,6 +112,7 @@ function _M.lookup(key, Rprefix)
   if answers[2] ~= ngx.null then
     ttl = answers[2]
   end
+  log(ngx.INFO,"3 - ans:", routes,"err:",err)
   return routes, err, ttl
 end
 

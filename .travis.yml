@@ -32,6 +32,7 @@ install:
 
 script:
   - python test/test_integration.py
+  - python test/test_integration_redisdown.py
 after_success:
   - ID=$(docker ps --quiet --filter ancestor=router:latest)
   - docker cp $ID:/luacov.stats.out .

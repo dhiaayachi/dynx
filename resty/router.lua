@@ -67,12 +67,12 @@ function _M.flushall(self)
 end
 
 function _M.get_route(self, key)
-    local routes = self.lookup_route(key)
+    local routes,_,err = self.lookup_route(key)
     if not routes or 0 == #routes then
-        return nil
+        return nil,err
     end
     local route = routes[math.random(#routes)]
-    return route
+    return route,err
 end
 
 return _M
