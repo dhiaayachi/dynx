@@ -1,6 +1,4 @@
-local _M = {
-  _VERSION = "0.1"
-}
+local _M = {}
 local mt = { __index = _M }
 local setmetatable = setmetatable
 
