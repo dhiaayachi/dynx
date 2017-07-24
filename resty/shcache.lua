@@ -10,9 +10,6 @@ local _M = {}
 
 local resty_lock = require("resty.lock")
 
--- TODO (jbyers): unwind from https://github.com/cloudflare/lua-resty-shcache
-local DEBUG = false
-
 -- defaults in secs
 local DEFAULT_POSITIVE_TTL = 10     -- cache for, successful lookup
 local DEFAULT_NEGATIVE_TTL = 2      -- cache for, failed lookup
