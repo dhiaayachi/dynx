@@ -46,8 +46,7 @@ function _M.unset(key,Rprefix)
   log(ngx.INFO,"key:", prefix..key)
   local res, err = client:multi()
   if not res then
-    ngx.say("failed to run multi: ", err)
-    return
+    return nil, cjson.encode({"Redis api not configured 0 for", prefix_key, err})
   end
   res, err  = client:hdel(prefix_key,"upstream")
   log(ngx.INFO,"res:", res,"err:",err)

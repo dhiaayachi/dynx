@@ -54,7 +54,24 @@ class TestDynxRedisDown(unittest.TestCase):
         dockerctl.unpauseRedis()
         dockerctl.clearRedis()
         self.assertEqual(response.status, 503)
-        
+
+    def test_404NoConfigRedisDownRemoveLocation(self):
+        dockerctl = DockerCtrl()
+        dockerctl.clearRedis()
+        dockerctl.pauseRedis()
+        response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?location=/httpbin")
+        dockerctl.unpauseRedis()
+        dockerctl.clearRedis()
+        self.assertEqual(response.status, 500)
+
+    def test_404NoConfigRedisDownFlushAll(self):
+        dockerctl = DockerCtrl()
+        dockerctl.clearRedis()
+        dockerctl.pauseRedis()
+        response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?flushall=true")
+        dockerctl.unpauseRedis()
+        dockerctl.clearRedis()
+        self.assertEqual(response.status, 500)
 
     def test_DownBeforeConfig(self):
         dockerctl = DockerCtrl()
