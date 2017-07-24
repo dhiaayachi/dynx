@@ -31,6 +31,7 @@ class TestDynxConfig(unittest.TestCase):
         time.sleep(8)
 
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
+
         self.assertEqual(response.status, 404)
 
         response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin&upstream=http://httpbin.org/anything&ttl=5")

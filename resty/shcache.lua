@@ -11,9 +11,6 @@ local _M = {}
 local resty_lock = require("resty.lock")
 
 -- TODO (jbyers): unwind from https://github.com/cloudflare/lua-resty-shcache
---local conf = require("conf")
---local debug = require("debug")
---local DEBUG = conf.DEBUG or false
 local DEBUG = false
 
 -- defaults in secs
@@ -26,10 +23,7 @@ local DEFAULT_LOCK_EXPTIME = 1      -- max wait if failing to call unlock()
 local DEFAULT_LOCK_TIMEOUT = 0.5    -- max waiting time of lock()
 local DEFAULT_LOCK_MAXSTEP = 0.1    -- max sleeping interval
 
-if conf then
-  DEFAULT_NEGATIVE_TTL = conf.DEFAULT_NEGATIVE_TTL or DEFAULT_NEGATIVE_TTL
-  DEFAULT_ACTUALIZE_TTL = conf.DEFAULT_ACTUALIZE_TTL or DEFAULT_ACTUALIZE_TTL
-end
+
 
 local bit = require("bit")
 local band = bit.band
@@ -165,10 +159,10 @@ local function new(self, shdict, callbacks, opts)
     decode = _identity
   end
 
-  local opts = opts or {}
+  local localOpts = opts or {}
 
   -- merge default lock options with the ones passed to new()
-  local lock_options = opts.lock_options or {}
+  local lock_options = localOpts.lock_options or {}
   if not lock_options.exptime then
     lock_options.exptime = DEFAULT_LOCK_EXPTIME
   end
@@ -179,7 +173,7 @@ local function new(self, shdict, callbacks, opts)
     lock_options.max_step = DEFAULT_LOCK_MAXSTEP
   end
 
-  local name = opts.name
+  local name = localOpts.name
 
   local obj = {
     shdict = shdict,
@@ -189,15 +183,15 @@ local function new(self, shdict, callbacks, opts)
     ext_lookup = ext_lookup,
     ext_udata = ext_udata,
 
-    positive_ttl = opts.positive_ttl or DEFAULT_POSITIVE_TTL,
-    negative_ttl = opts.negative_ttl or DEFAULT_NEGATIVE_TTL,
+    positive_ttl = localOpts.positive_ttl or DEFAULT_POSITIVE_TTL,
+    negative_ttl = localOpts.negative_ttl or DEFAULT_NEGATIVE_TTL,
 
     -- ttl to actualize stale data to
-    actualize_ttl = opts.actualize_ttl or DEFAULT_ACTUALIZE_TTL,
+    actualize_ttl = localOpts.actualize_ttl or DEFAULT_ACTUALIZE_TTL,
 
     lock_options = lock_options,
 
-    locks_shdict = opts.lock_shdict or "locks",
+    locks_shdict = localOpts.lock_shdict or "locks",
 
     -- positive ttl specified by external lookup function
     lookup_ttl = nil,
@@ -227,7 +221,7 @@ local function new(self, shdict, callbacks, opts)
     return nil
   end
 
-  local self = setmetatable(obj, obj_mt)
+  local newSelf = setmetatable(obj, obj_mt)
 
   -- if the shcache object is named
   -- keep track of the object in the context
@@ -236,7 +230,7 @@ local function new(self, shdict, callbacks, opts)
     _store_object(self, name)
   end
 
-  return self
+  return newSelf
 end
 _M.new = new
 
@@ -457,7 +451,7 @@ local function load(self, key)
   -- start: check for existing cache
   -- clear previous data stored in stale_data
   self.stale_data = nil
-  local data, err, ttl = nil, nil, nil
+  local dataext, errext, ttl
   local data, flags = _get(self, key)
 
   -- hit: process_cache_hit
@@ -470,7 +464,7 @@ local function load(self, key)
 
   -- lock: set a lock before performing external lookup
   local lock = _get_lock(self)
-  local elapsed, err = lock:lock(key)
+  local elapsed, errLock = lock:lock(key)
 
   if not elapsed then
     -- failed to acquire lock, still proceed normally to external_lookup
@@ -481,7 +475,7 @@ local function load(self, key)
       timeout = opts.timeout
     end
     ngx.log(ngx.ERR, "failed to acquire the lock on key \"", key, "\" for ",
-            timeout, " sec: ", err)
+            timeout, " sec: ", errLock)
     self.lock_status = 'ERROR'
     -- _unlock won't try to unlock() without a valid lock
     self.lock = nil
@@ -523,46 +517,40 @@ local function load(self, key)
   _enter_critical_section(self, key)
 
   -- perform external lookup
-  data, err, ttl = self.ext_lookup(self.ext_udata)
+  dataext, errext, ttl = self.ext_lookup(self.ext_udata)
 
-  if data then
+  if dataext then
     -- succ: save positive and return the data
-    _save_positive(self, key, data, ttl)
-    return _return(self, data)
+    _save_positive(self, key, dataext, ttl)
+    return _return(self, dataext)
   else
-    if err then
+    if errext then
       -- external lookup failed
       -- attempt to load stale data
-      ngx.log(ngx.WARN, 'external lookup failed: ', err)
-      data, flags = _get_stale(self)
-      if data and not _is_empty(data, flags) then
+      ngx.log(ngx.WARN, 'external lookup failed: ', errext)
+      dataext, flags = _get_stale(self)
+      if dataext and not _is_empty(dataext, flags) then
         -- hit_stale + valid (positive) data
 
-        flags = _save_actualize(self, key, data, flags)
+        flags = _save_actualize(self, key, dataext, flags)
         -- unlock before de-serializing data
         _unlock(self)
-        data = _process_cached_data(self, data, flags)
-        return _return(self, data)
-      else
-
+        dataext = _process_cached_data(self, dataext, flags)
+        return _return(self, dataext)
       end
 
     end
     -- data not available just mark it as negative
   end
-  
 
-  
-  
-
-  if DEBUG and data then
+  if DEBUG and dataext then
     -- there is data, but it failed _is_empty() => stale negative data
     print('STALE_NEGATIVE data => cache as a new HIT_NEGATIVE')
   end
 
   -- nothing has worked, save negative and return empty
   _save_negative(self, key)
-  return _return(self, nil,err)
+  return _return(self, nil,errext)
 end
 _M.load = load
 
