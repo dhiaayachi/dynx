@@ -59,30 +59,30 @@ end
 local EMPTY_DATA = '_EMPTY_'
 
 -- install debug functions
-if DEBUG then
-  local resty_lock_lock = resty_lock.lock
+--if DEBUG then
+--  local resty_lock_lock = resty_lock.lock
 
-  resty_lock.lock = function (...)
-    local _, key = ...
-    print("lock key: ", tostring(key))
-    return resty_lock_lock(...)
-  end
+--  resty_lock.lock = function (...)
+--    local _, key = ...
+--    print("lock key: ", tostring(key))
+--    return resty_lock_lock(...)
+--  end
 
-  local resty_lock_unlock = resty_lock.unlock
+--  local resty_lock_unlock = resty_lock.unlock
 
-  resty_lock.unlock = function (...)
-    print("unlock")
-    return resty_lock_unlock(...)
-  end
-end
+--  resty_lock.unlock = function (...)
+--    print("unlock")
+--    return resty_lock_unlock(...)
+ -- end
+--end
 
 
 -- store the object in the context
 -- useful for debugging and tracking cache status
 local function _store_object(self, name)
-  if DEBUG then
-    print('storing shcache: ', name, ' into ngx.ctx')
-  end
+--  if DEBUG then
+--    print('storing shcache: ', name, ' into ngx.ctx')
+--  end
 
   local ngx_ctx = ngx.ctx
 
@@ -235,9 +235,9 @@ end
 _M.new = new
 
 local function _enter_critical_section(self, key)
-  if DEBUG then
-    print('Entering critical section, shcache: ', self.name or '')
-  end
+--  if DEBUG then
+--    print('Entering critical section, shcache: ', self.name or '')
+--  end
 
   self.in_critical_section = true
 
@@ -262,15 +262,15 @@ local function _enter_critical_section(self, key)
   critical_sections.count = critical_sections.count + 1
   critical_sections.workers[self] = key
 
-  if DEBUG then
-    print('critical sections count: ', critical_sections.count)
-  end
+--  if DEBUG then
+--    print('critical sections count: ', critical_sections.count)
+--  end
 end
 
 local function _exit_critical_section(self)
-  if DEBUG then
-    print('Leaving critical section, shcache: ', self.name or '')
-  end
+--  if DEBUG then
+--    print('Leaving critical section, shcache: ', self.name or '')
+--  end
 
   local critical_sections = ngx.ctx.critical_sections
   if not critical_sections then
@@ -281,17 +281,17 @@ local function _exit_critical_section(self)
   critical_sections.count = critical_sections.count - 1
   critical_sections.workers[self] = nil
 
-  if DEBUG then
-    print('die: ', critical_sections.die, ', count: ',
-          critical_sections.count)
-  end
+--  if DEBUG then
+--    print('die: ', critical_sections.die, ', count: ',
+--          critical_sections.count)
+--  end
 
   local status = critical_sections.die
   if status and critical_sections.count <= 0 then
     -- safe to exit.
-    if DEBUG then
-      print('Last critical section, exiting.')
-    end
+--    if DEBUG then
+--      print('Last critical section, exiting.')
+--    end
     ngx.exit(status)
   end
 end
@@ -342,9 +342,9 @@ local function _return(self, data, flags)
 end
 
 local function _set(self, key, data, ttl, flags)
-  if DEBUG then
-    print("saving key: ", key, ", for: ", ttl)
-  end
+--  if DEBUG then
+--    print("saving key: ", key, ", for: ", ttl)
+--  end
 
   local ok, err, forcible = self.shdict:set(key, data, ttl, flags)
 
@@ -364,13 +364,13 @@ end
 
 -- save positive, encode the data if needed before :set()
 local function _save_positive(self, key, data, ttl)
-  if DEBUG then
-    if ttl then
-      print("key: ", key, ". save positive, lookup ttl: ", ttl)
-    else
-      print("key: ", key, ". save positive, ttl: ", self.positive_ttl)
-    end
-  end
+--  if DEBUG then
+--    if ttl then
+--      print("key: ", key, ". save positive, lookup ttl: ", ttl)
+--    else
+--      print("key: ", key, ". save positive, ttl: ", self.positive_ttl)
+--    end
+--  end
 
   data = self.encode(data)
 
@@ -384,9 +384,9 @@ end
 
 -- save negative, no encoding required (no data actually saved)
 local function _save_negative(self, key)
-  if DEBUG then
-    print("key: ", key, ". save negative, ttl: ", self.negative_ttl)
-  end
+--  if DEBUG then
+--    print("key: ", key, ". save negative, ttl: ", self.negative_ttl)
+--  end
   return _set(self, key, EMPTY_DATA, self.negative_ttl, HIT_NEGATIVE_STATE)
 end
 
@@ -394,19 +394,19 @@ end
 local function _save_actualize(self, key, data, flags)
   local new_flags = bor(flags, STALE_FLAG)
 
-  if DEBUG then
-    print("key: ", key, ". save actualize, ttl: ", self.actualize_ttl,
-          ". new state: ", get_status(new_flags))
-  end
+--  if DEBUG then
+--    print("key: ", key, ". save actualize, ttl: ", self.actualize_ttl,
+--          ". new state: ", get_status(new_flags))
+--  end
 
   _set(self, key, data, self.actualize_ttl, new_flags)
   return new_flags
 end
 
 local function _process_cached_data(self, data, flags)
-  if DEBUG then
-    print("data: ", data, st_format(", flags: %x", flags))
-  end
+--  if DEBUG then
+--    print("data: ", data, st_format(", flags: %x", flags))
+--  end
 
   self.cache_state = flags
   self.from_cache = true
@@ -426,9 +426,9 @@ local function _get(self, key)
   local data, flags, stale = self.shdict:get_stale(key)
 
   if data and stale then
-    if DEBUG then
-      print("found stale data for key : ", key)
-    end
+ --   if DEBUG then
+ --     print("found stale data for key : ", key)
+ --   end
 
     self.stale_data = { data, flags }
 
@@ -543,10 +543,10 @@ local function load(self, key)
     -- data not available just mark it as negative
   end
 
-  if DEBUG and dataext then
-    -- there is data, but it failed _is_empty() => stale negative data
-    print('STALE_NEGATIVE data => cache as a new HIT_NEGATIVE')
-  end
+--  if DEBUG and dataext then
+--    -- there is data, but it failed _is_empty() => stale negative data
+--    print('STALE_NEGATIVE data => cache as a new HIT_NEGATIVE')
+--  end
 
   -- nothing has worked, save negative and return empty
   _save_negative(self, key)
