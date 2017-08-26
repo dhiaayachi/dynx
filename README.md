@@ -31,6 +31,7 @@ The current solution is based on https://github.com/tes/lua-resty-router
 - Add the ability to delete all locations
 - Add unit test framework for the lua libraries
 - Write documentation with examples and use cases
+- Add swagger documentation for the API
 - ...
 
 
