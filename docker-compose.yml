@@ -2,10 +2,13 @@ version : "3"
 services:
   redis-dyn:
     image: redis:4.0-alpine
+    labels:
+      kv: "redis-dyn"
     volumes:
       - "redis-vol:/data"
     deploy:
       replicas: 1
+
   openresty-dyn:
     image: router
     ports:

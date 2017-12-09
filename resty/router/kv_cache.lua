@@ -13,9 +13,8 @@ local function log(log_level, ...)
   ngx.log(log_level, "router: " .. cjson.encode({...}))
 end
 
-function _M.new(self, index)
-  local redis  = require "resty.redis"
-  client = redis:new()
+function _M.new(self, index, cl)
+  client = cl
   client:set_timeout(1000)
   local _, _ = client:connect("redis-dyn", 6379)
   client:select(index)

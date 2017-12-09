@@ -27,7 +27,9 @@ function _M.new(self, backend_name, opts)
       end
     end
     local backend_class = require(backend_name)
-    local backend = backend_class:new(1)
+    local redis  = require "resty.redis"
+    local client = redis:new()
+    local backend = backend_class:new(1,client)
     self.backend = backend
     self.opts = opts_cache
     self.lookup_route = function(key)

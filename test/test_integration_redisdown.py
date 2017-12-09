@@ -3,12 +3,13 @@ import http.client
 import time
 import json
 import subprocess
+from logging import exception
 
 
 class DockerCtrl:
     def __init__(self):
         self.state = "unpaused"
-        self.redis_id = subprocess.check_output(['docker', 'ps', '--quiet', '--filter', 'ancestor=redis:4.0-alpine']).decode("utf-8", "ignore").rstrip()
+        self.redis_id = subprocess.check_output(['docker', 'ps', '--quiet', '--filter', 'label=kv=redis-dyn']).decode("utf-8", "ignore").rstrip()
     def pauseRedis(self):
         if self.state == "unpaused":
             print("pause: " + self.redis_id)
@@ -28,7 +29,10 @@ class DockerCtrl:
             self.state = "unpaused"
             time.sleep(5)
     def clearRedis(self):
-        cmd_id = subprocess.check_output(['docker', 'exec', '-it', self.redis_id, 'redis-cli','FLUSHALL']).decode("utf-8", "ignore").rstrip()
+        try:
+            cmd_id = subprocess.check_output(['docker', 'exec', '-it', self.redis_id, 'redis-cli','FLUSHALL'],stderr=subprocess.STDOUT, shell=True, timeout=3).rstrip()
+        except Exception as ex:
+            print(ex)
         print(cmd_id)
         time.sleep(5)
 
