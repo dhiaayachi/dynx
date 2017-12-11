@@ -4,8 +4,7 @@ local setmetatable = setmetatable
 
 local cjson = require("cjson")
 
-local router = require "dynx.resty.router"
-local MINIMUM_TTL = router.MINIMUM_TTL
+local MINIMUM_TTL = 5
 local DEFAULT_PREFIX = "resty_route:"
 local client = nil
 

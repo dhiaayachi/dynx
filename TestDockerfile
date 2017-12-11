@@ -1,0 +1,9 @@
+FROM openresty/openresty:alpine-fat
+RUN luarocks install cluacov
+RUN luarocks install  luacov-coveralls
+RUN luarocks install  luaunit
+COPY resty /usr/local/openresty/site/lualib/dynx/resty
+RUN touch luacov.stats.out
+COPY luacov.cfg /luacov.cfg
+RUN chmod 777 luacov.stats.out
+WORKDIR /test
