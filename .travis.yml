@@ -21,14 +21,14 @@ before_install:
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update
   - sudo apt-get -y install docker-ce
-  - docker build -t router .
-  - docker pull redis:4.0-alpine
-  - mkdir -p redis-vol
-  - docker swarm init --advertise-addr 127.0.0.1
   - luacheck -d upstream_*.lua resty --globals ngx jit
   - docker build -t test_resty -f TestDockerfile .
   - docker run  -v "$(pwd)/resty/test:/test" test_resty resty test_kb_cache.lua
   - mv $(pwd)/resty/test/luacov.stats.out $(pwd)
+  - docker build -t router .
+  - docker pull redis:4.0-alpine
+  - mkdir -p redis-vol
+  - docker swarm init --advertise-addr 127.0.0.1
 install:
   - docker stack deploy -c docker-compose.yml dynx
   - sleep 30
