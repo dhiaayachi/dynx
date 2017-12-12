@@ -1,7 +1,6 @@
 local _M = {}
 local mt = { __index = _M }
 local setmetatable = setmetatable
-local cjson = require("cjson")
 
 function _M:connect(addr, port)
     self.kv_store = {}
