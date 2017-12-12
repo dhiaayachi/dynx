@@ -15,6 +15,9 @@ function _M:new(fail)
 end
 
 function _M:select(index)
+    if self.fail == 4 then
+        return nil, {}
+    end
     if self.kv_store[index] == nil then
         self.kv_store[index] = {}
     end

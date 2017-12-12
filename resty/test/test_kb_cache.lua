@@ -42,10 +42,25 @@ end
 function TestKVCache:test4_failFlushAll()
     local cl = memm_store:new(1)
     self.kv = kv_cache:new(1, cl)
-    self.kv.set('test', 'upstream', 10, "fix")
-    self.kv.set('test2', 'upstream2', 10, "fix")
-    self.kv.set('test3', 'upstream3', 10, "fix")
     local state, err = self.kv.flushall()
+    lu.assertEquals( state, nil )
+    lu.assertNotEquals( err, nil )
+
+    cl = memm_store:new(2)
+    self.kv = kv_cache:new(1, cl)
+    state, err = self.kv.flushall()
+    lu.assertEquals( state, nil )
+    lu.assertNotEquals( err, nil )
+
+    cl = memm_store:new(3)
+    self.kv = kv_cache:new(1, cl)
+    state, err = self.kv.flushall()
+    lu.assertEquals( state, nil )
+    lu.assertNotEquals( err, nil )
+
+    cl = memm_store:new(4)
+    self.kv = kv_cache:new(1, cl)
+    state, err = self.kv.flushall()
     lu.assertEquals( state, nil )
     lu.assertNotEquals( err, nil )
 end
