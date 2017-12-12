@@ -13,7 +13,7 @@ local memm_store = require('doubles.in_mem_kv_store')
 TestKVCache = {}
 
 function TestKVCache:setUp()
-    local cl = memm_store:new()
+    local cl = memm_store:new(0)
     self.kv = kv_cache:new(1, cl)
 end
 
@@ -38,6 +38,18 @@ function TestKVCache:test3_canFlushAll()
     lu.assertNotEquals( state, nil )
     lu.assertEquals( err, nil )
 end
+
+function TestKVCache:test4_failFlushAll()
+    local cl = memm_store:new(1)
+    self.kv = kv_cache:new(1, cl)
+    self.kv.set('test', 'upstream', 10, "fix")
+    self.kv.set('test2', 'upstream2', 10, "fix")
+    self.kv.set('test3', 'upstream3', 10, "fix")
+    local state, err = self.kv.flushall()
+    lu.assertEquals( state, nil )
+    lu.assertNotEquals( err, nil )
+end
+
 
 local unit_runner = lu.LuaUnit.new()
 unit_runner:setOutputType("tap")

@@ -9,7 +9,8 @@ function _M:connect(addr, port)
 end
 
 
-function _M:new()
+function _M:new(fail)
+    self.fail = fail
     return setmetatable(self, mt)
 end
 
@@ -38,16 +39,27 @@ function _M:set_timeout(time)
 end
 
 function _M:flushdb()
+    if self.fail == 1 then
+        return nil, {}
+    end
     self.kv_store[self.index] = nil
     return {},nil
 end
 
-function _M.multi()
-    return {},nil
+function _M:multi()
+    if self.fail == 2 then
+        return nil, {}
+    else
+        return {},nil
+    end
 end
 
-function _M.exec()
-    return {},nil
+function _M:exec()
+    if self.fail == 3 then
+        return nil, {}
+    else
+        return {},nil
+    end
 end
 
 
