@@ -16,10 +16,12 @@ class DockerCtrl:
         if self.state == "unpaused":
             self.redis_container.pause()
             self.state = "paused"
+            time.sleep(10)
     def unpauseRedis(self):
         if self.state == "paused":
             self.redis_container.unpause()
             self.state = "unpaused"
+            time.sleep(5)
     def clearRedis(self):
         try:
             self.redis_container.exec_run("redis-cli FLUSHALL")
@@ -47,7 +49,7 @@ class TestDynxRedisDown(unittest.TestCase):
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin")
         dockerctl.unpauseRedis()
         dockerctl.clearRedis()
-        self.assertEqual(response.status, 503)
+        self.assertEqual(503, response.status)
 
     def test_404NoConfigRedisDownRemoveLocation(self):
         dockerctl = DockerCtrl()
@@ -56,7 +58,7 @@ class TestDynxRedisDown(unittest.TestCase):
         response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?location=/httpbin")
         dockerctl.unpauseRedis()
         dockerctl.clearRedis()
-        self.assertEqual(response.status, 500)
+        self.assertEqual(500, response.status)
 
     def test_404NoConfigRedisDownFlushAll(self):
         dockerctl = DockerCtrl()
@@ -65,7 +67,7 @@ class TestDynxRedisDown(unittest.TestCase):
         response, _ = TestUtils.sendRequest("localhost",8888,"DELETE","/configure?flushall=true")
         dockerctl.unpauseRedis()
         dockerctl.clearRedis()
-        self.assertEqual(response.status, 500)
+        self.assertEqual(500, response.status)
 
     def test_DownBeforeConfig(self):
         dockerctl = DockerCtrl()
@@ -74,45 +76,45 @@ class TestDynxRedisDown(unittest.TestCase):
         dockerctl.unpauseRedis()
         dockerctl.clearRedis()
         time.sleep(5)
-        self.assertEqual(response.status, 500)
+        self.assertEqual(500, response.status)
 
     def test_DownAfterConfig(self):
         dockerctl = DockerCtrl()
         response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin2&upstream=http://httpbin.org/anything&ttl=5")
-        self.assertEqual(response.status, 200)
+        self.assertEqual(200, response.status)
         dockerctl.pauseRedis()
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin2")
         dockerctl.unpauseRedis()
         dockerctl.clearRedis()
         time.sleep(8)
-        self.assertEqual(response.status, 503)
+        self.assertEqual(503, response.status)
 
     def test_DownAfterCached(self):
         dockerctl = DockerCtrl()
         response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin3&upstream=http://httpbin.org/anything&ttl=5")
-        self.assertEqual(response.status, 200)
+        self.assertEqual(200, response.status)
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin3")
-        self.assertEqual(response.status, 200)
+        self.assertEqual(200, response.status)
         dockerctl.pauseRedis()
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin3")
         dockerctl.unpauseRedis()
         dockerctl.clearRedis()
         time.sleep(8)
-        self.assertEqual(response.status, 200)
+        self.assertEqual(200, response.status)
 
     def test_DownAfterCachedAndStale(self):
         dockerctl = DockerCtrl()
         response, _ = TestUtils.sendRequest("localhost",8888,"GET","/configure?location=/httpbin4&upstream=http://httpbin.org/anything&ttl=5")
-        self.assertEqual(response.status, 200)
+        self.assertEqual(200, response.status)
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin4")
-        self.assertEqual(response.status, 200)
+        self.assertEqual(200, response.status)
         time.sleep(8)
         dockerctl.pauseRedis()
         response, _ = TestUtils.sendRequest("localhost",8666,"GET","/httpbin4")
         dockerctl.unpauseRedis()
         dockerctl.clearRedis()
         time.sleep(8)
-        self.assertEqual(response.status, 200)
+        self.assertEqual(200, response.status)
 
 if __name__ == '__main__':   
     unittest.main()
