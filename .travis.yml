@@ -17,6 +17,7 @@ before_install:
   - luarocks install luacov-coveralls --server=https://luarocks.org/dev
   - luarocks install lunitx
   - luarocks install luacheck
+  - pip install docker
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update

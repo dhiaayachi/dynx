@@ -3,38 +3,28 @@ import http.client
 import time
 import json
 import subprocess
+import docker
 from logging import exception
 
 
 class DockerCtrl:
     def __init__(self):
+        self.client = docker.from_env()
+        self.redis_container = self.client.containers.list(filters={'label': 'kv=redis-dyn'})[0]
         self.state = "unpaused"
-        self.redis_id = subprocess.check_output(['docker', 'ps', '--quiet', '--filter', 'label=kv=redis-dyn']).decode("utf-8", "ignore").rstrip()
     def pauseRedis(self):
         if self.state == "unpaused":
-            print("pause: " + self.redis_id)
-            cmd_id = subprocess.check_output(['docker', 'pause', self.redis_id]).decode("utf-8", "ignore").rstrip()
-            print(cmd_id)
-            if cmd_id != self.redis_id:
-                raise ValueError("Message")
+            self.redis_container.pause()
             self.state = "paused"
-            time.sleep(5)
     def unpauseRedis(self):
         if self.state == "paused":
-            print("unpause: " + self.redis_id)
-            cmd_id = subprocess.check_output(['docker', 'unpause', self.redis_id]).decode("utf-8", "ignore").rstrip()
-            print(cmd_id)
-            if cmd_id != self.redis_id:
-                raise ValueError("Message")
+            self.redis_container.unpause()
             self.state = "unpaused"
-            time.sleep(5)
     def clearRedis(self):
         try:
-            cmd_id = subprocess.check_output(['docker', 'exec', '-it', self.redis_id, 'redis-cli','FLUSHALL'],stderr=subprocess.STDOUT, shell=True, timeout=3).rstrip()
+            self.redis_container.exec_run("redis-cli FLUSHALL")
         except Exception as ex:
             print(ex)
-        print(cmd_id)
-        time.sleep(5)
 
 
 class TestUtils:
