@@ -1,6 +1,7 @@
 local _M = {}
 local mt = { __index = _M }
 local setmetatable = setmetatable
+local cjson = require("cjson")
 
 function _M:connect(addr, port)
     self.kv_store = {}
@@ -12,6 +13,10 @@ end
 function _M:new(fail)
     self.fail = fail
     return setmetatable(self, mt)
+end
+
+function _M:set_fail(fail)
+    self.fail = fail
 end
 
 function _M:select(index)
@@ -26,6 +31,9 @@ function _M:select(index)
 end
 
 function _M:hmset(prefix_key,upstream_name,upstream,ttl_name,ttl)
+    if self.kv_store[self.index] == nil then
+        self.kv_store[self.index] = {}
+    end
     self.kv_store[self.index][prefix_key] = {}
     self.kv_store[self.index][prefix_key][upstream_name] = upstream
     self.kv_store[self.index][prefix_key][ttl_name] = ttl;
@@ -37,6 +45,19 @@ function _M:hmget(prefix_key,upstream_name,ttl_name)
     return {self.kv_store[self.index][prefix_key][upstream_name],self.kv_store[self.index][prefix_key][ttl_name]}
 end
 
+function _M:hdel(prefix_key,name)
+    if self.fail == 5 then
+        return nil, {}
+    end
+    if self.fail == 6 then
+        self.fail = 5
+    end
+    self.kv_store[self.index][prefix_key][name] = nil
+    if next(self.kv_store[self.index][prefix_key]) == nil then
+        self.kv_store[self.index][prefix_key] = nil
+    end
+    return {},nil
+end
 function _M:set_timeout(time)
     self.timeout = time
 end
