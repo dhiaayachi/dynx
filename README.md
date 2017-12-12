@@ -29,12 +29,10 @@ The current solution is based on https://github.com/tes/lua-resty-router
 - Add the ability to configure multiple upstream for one location (load balancing)
 - ~~Add a pipeling with tests (specially for LUA scripting)~~
 - Add the ability to delete all locations
-- Add unit test framework for the lua libraries
+- ~~Add unit test framework for the lua libraries~~
 - Write documentation with examples and use cases
 - Add swagger documentation for the API
 - ...
-
-
 
 
  # Join the team 
