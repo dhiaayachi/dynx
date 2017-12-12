@@ -5,7 +5,7 @@ local lu = require('luaunit')
 local runner = require 'luacov.runner'
 runner.tick = true
 runner.init({savestepsize = 3})
---jit.off()
+jit.off()
 
 local kv_cache = require('dynx.resty.router.kv_cache')
 local memm_store = require('doubles.in_mem_kv_store')
