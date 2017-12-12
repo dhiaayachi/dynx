@@ -1,1 +1,14 @@
 
+.DS_Store
+.idea/dynx.iml
+.idea/inspectionProfiles/
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+TAGS
+luacov.report.out
+luacov.stats.out
+resty/.DS_Store
+resty/router/luacov.stats.out
+resty/test/luacov.stats.out
+test/.idea/

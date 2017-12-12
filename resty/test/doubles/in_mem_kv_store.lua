@@ -14,12 +14,14 @@ function _M:new()
 end
 
 function _M:select(index)
-    self.kv_store[index] = {}
+    if self.kv_store[index] == nil then
+        self.kv_store[index] = {}
+    end
     self.index = index
+    return {}, nil
 end
 
 function _M:hmset(prefix_key,upstream_name,upstream,ttl_name,ttl)
-
     self.kv_store[self.index][prefix_key] = {}
     self.kv_store[self.index][prefix_key][upstream_name] = upstream
     self.kv_store[self.index][prefix_key][ttl_name] = ttl;
@@ -34,5 +36,19 @@ end
 function _M:set_timeout(time)
     self.timeout = time
 end
+
+function _M:flushdb()
+    self.kv_store[self.index] = nil
+    return {},nil
+end
+
+function _M.multi()
+    return {},nil
+end
+
+function _M.exec()
+    return {},nil
+end
+
 
 return _M

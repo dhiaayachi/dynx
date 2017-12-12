@@ -5,7 +5,7 @@ local lu = require('luaunit')
 local runner = require 'luacov.runner'
 runner.tick = true
 runner.init({savestepsize = 3})
-jit.off()
+--jit.off()
 
 local kv_cache = require('dynx.resty.router.kv_cache')
 local memm_store = require('doubles.in_mem_kv_store')
@@ -27,6 +27,15 @@ function TestKVCache:test2_canStoreAndLookup()
     lu.assertNotEquals( routes, nil )
     lu.assertEquals( routes[1], "upstream" )
     lu.assertEquals( ttl, 10 )
+    lu.assertEquals( err, nil )
+end
+
+function TestKVCache:test3_canFlushAll()
+    self.kv.set('test', 'upstream', 10, "fix")
+    self.kv.set('test2', 'upstream2', 10, "fix")
+    self.kv.set('test3', 'upstream3', 10, "fix")
+    local state, err = self.kv.flushall()
+    lu.assertNotEquals( state, nil )
     lu.assertEquals( err, nil )
 end
 
