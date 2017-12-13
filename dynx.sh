@@ -59,7 +59,7 @@ fi
 
 if [ "$TEST" -eq 1 ]; then
     docker build -t test_resty -f TestDockerfile . || exit 1
-    docker run  -v "$(pwd)/resty/test:/test" test_resty resty test_kb_cache.lua || exit 1
+    docker run  -v "$(pwd)/resty/test:/test" test_resty resty *.lua || exit 1
 fi
 
 if [ "$BUILD" -eq 1 ]; then
@@ -67,7 +67,7 @@ if [ "$BUILD" -eq 1 ]; then
 fi
 
 if [ "$DEPLOY" -eq 1 ]; then
-    deploy -c docker-compose.yml dynx || exit 1
+		docker deploy -c docker-compose.yml dynx || exit 1
 fi
 
 if [ "$TESTE2E" -eq 1 ]; then
