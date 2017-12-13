@@ -23,15 +23,14 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y install docker-ce
   - luacheck -d upstream_*.lua resty --globals ngx jit
-  - docker build -t test_resty -f TestDockerfile .
-  - docker run  -v "$(pwd)/resty/test:/test" test_resty resty test_kb_cache.lua
+  - bash dynx.sh test
   - mv $(pwd)/resty/test/luacov.stats.out $(pwd)
-  - docker build -t router .
+  - bash dynx.sh build
   - docker pull redis:4.0-alpine
   - mkdir -p redis-vol
   - docker swarm init --advertise-addr 127.0.0.1
 install:
-  - docker stack deploy -c docker-compose.yml dynx
+  - bash dynx.sh deploy
   - sleep 30
 
 script:
