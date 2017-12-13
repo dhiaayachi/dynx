@@ -59,7 +59,8 @@ fi
 
 if [ "$TEST" -eq 1 ]; then
     docker build -t test_resty -f TestDockerfile . || exit 1
-    docker run  -v "$(pwd)/resty/test:/test" test_resty resty *.lua || exit 1
+    docker run  -v "$(pwd)/resty/test:/test" test_resty resty test_kv_cache.lua || exit 1
+    docker run  -v "$(pwd)/resty/test:/test" test_resty resty test_shcache.lua || exit 1
 fi
 
 if [ "$BUILD" -eq 1 ]; then

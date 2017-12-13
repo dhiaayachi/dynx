@@ -212,12 +212,13 @@ local function new(self, shdict, callbacks, opts)
   local locks = ngx.shared[obj.locks_shdict]
 
   -- check for existence, locks is not directly used
-  if not locks then
-    ngx.log(ngx.CRIT, 'shared mem locks is missing.\n',
-            '## add to you lua conf: lua_shared_dict locks 5M; ##')
-    return nil
+  if localOpts.disable_check_locks == nil or localOpts.disable_check_locks == false then
+    if not locks then
+      ngx.log(ngx.CRIT, 'shared mem locks is missing.\n',
+              '## add to you lua conf: lua_shared_dict locks 5M; ##')
+      return nil
+    end
   end
-
   local newSelf = setmetatable(obj, obj_mt)
 
   -- if the shcache object is named
