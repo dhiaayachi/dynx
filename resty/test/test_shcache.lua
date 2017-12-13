@@ -27,11 +27,11 @@ function TESTSHCache:test1_newSHCache()
     local lookup = function(key_lookup)
         return self.kv.lookup(key_lookup,nil)
     end
-    local cache, err = shcache:new(
+    local cache, _ = shcache:new(
         {},
         {
             external_lookup = lookup,
-            external_lookup_arg = key,
+            external_lookup_arg = "test",
             encode = cjson.encode,
             decode = cjson.decode,
         },
@@ -44,11 +44,11 @@ function TESTSHCache:test1_newSHCache()
         }
     )
     lu.assertNotEquals(cache, nil )
-    cache, err = shcache:new(
+    cache, _ = shcache:new(
         {},
         {
             external_lookup = lookup,
-            external_lookup_arg = key,
+            external_lookup_arg = "test",
             encode = cjson.encode,
             decode = cjson.decode,
         },
@@ -61,11 +61,11 @@ function TESTSHCache:test1_newSHCache()
     )
     lu.assertEquals(cache, nil )
 
-    cache, err = shcache:new(
+    cache, _ = shcache:new(
         nil,
         {
             external_lookup = lookup,
-            external_lookup_arg = key,
+            external_lookup_arg = "test",
             encode = cjson.encode,
             decode = cjson.decode,
         },
