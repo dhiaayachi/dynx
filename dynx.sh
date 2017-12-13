@@ -68,7 +68,7 @@ if [ "$BUILD" -eq 1 ]; then
 fi
 
 if [ "$DEPLOY" -eq 1 ]; then
-		docker deploy -c docker-compose.yml dynx || exit 1
+		docker stack deploy -c docker-compose.yml dynx || exit 1
 fi
 
 if [ "$TESTE2E" -eq 1 ]; then
