@@ -77,6 +77,35 @@ function TESTSHCache:test1_newSHCache()
         }
     )
     lu.assertEquals(cache, nil )
+
+    cache, _ = shcache:new(
+        {},
+        nil,
+        {
+            positive_ttl = self.positive_ttl,
+            negative_ttl = self.negative_ttl,
+            actualize_ttl = self.actualize_ttl,
+            name = "resty_router_cache",
+        }
+    )
+    lu.assertEquals(cache, nil )
+
+    cache, _ = shcache:new(
+        {},
+        {
+            external_lookup = nil,
+            external_lookup_arg = "test",
+            encode = cjson.encode,
+            decode = cjson.decode,
+        },
+        {
+            positive_ttl = self.positive_ttl,
+            negative_ttl = self.negative_ttl,
+            actualize_ttl = self.actualize_ttl,
+            name = "resty_router_cache",
+        }
+    )
+    lu.assertEquals(cache, nil )
 end
 
 --function TESTSHCache:test2_retrieveFromCache()
