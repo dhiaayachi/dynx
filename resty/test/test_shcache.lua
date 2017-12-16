@@ -118,8 +118,8 @@ function TESTSHCache:test3_retrieveFromCache()
         {
             external_lookup = lookup,
             external_lookup_arg = 'test',
-            encode = cjson.encode,
-            decode = cjson.decode,
+            encode = nil,
+            decode = nil,
         },
         {
             positive_ttl = self.positive_ttl,
