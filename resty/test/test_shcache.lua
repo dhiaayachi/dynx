@@ -57,6 +57,7 @@ function TESTSHCache:test1_newSHCache()
             negative_ttl = self.negative_ttl,
             actualize_ttl = self.actualize_ttl,
             name = "resty_router_cache",
+            lock_shdict = "invalid"
         }
     )
     lu.assertEquals(cache, nil )
@@ -108,30 +109,30 @@ function TESTSHCache:test1_newSHCache()
     lu.assertEquals(cache, nil )
 end
 
---function TESTSHCache:test2_retrieveFromCache()
---    local lookup = function(key_lookup)
---        return self.kv.lookup(key_lookup,nil)
---    end
---    local cache, _ = shcache:new(
---        {},
---        {
---            external_lookup = lookup,
---            external_lookup_arg = key,
---            encode = cjson.encode,
---            decode = cjson.decode,
---        },
---        {
---            positive_ttl = self.positive_ttl,
---            negative_ttl = self.negative_ttl,
---            actualize_ttl = self.actualize_ttl,
---            name = "resty_router_cache",
---            disable_check_locks = true,
---        }
---    )
---    self.kv.set('test', 'upstream', 10, nil)
---    lu.assertNotEquals(cache, nil )
---    lu.assertNotEquals(cache:load('test'),'upstream')
---end
+function TESTSHCache:test3_retrieveFromCache()
+    local lookup = function(key_lookup)
+        return self.kv.lookup(key_lookup,nil)
+    end
+    local cache, _ = shcache:new(
+        ngx.shared.cache_dict,
+        {
+            external_lookup = lookup,
+            external_lookup_arg = 'test',
+            encode = cjson.encode,
+            decode = cjson.decode,
+        },
+        {
+            positive_ttl = self.positive_ttl,
+            negative_ttl = self.negative_ttl,
+            actualize_ttl = self.actualize_ttl,
+            name = "resty_router_cache",
+            disable_check_locks = true,
+        }
+    )
+    self.kv.set('test', 'upstream', 10, nil)
+    lu.assertNotEquals(cache, nil )
+    lu.assertNotEquals(cache:load('test'),'upstream')
+end
 
 local unit_runner = lu.LuaUnit.new()
 unit_runner:setOutputType("tap")
