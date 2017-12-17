@@ -20,17 +20,23 @@ function _M.new(self, index, cl)
   return setmetatable(self, mt)
 end
 
-function _M.set(key, upstream, ttl, Rprefix)
+
+function addPrefix(Rprefix, key)
   local prefix = DEFAULT_PREFIX
   if Rprefix ~= nil then
     prefix = Rprefix
   end
   local prefix_key = prefix..key
   log(ngx.INFO,"key:", prefix..key)
+  return prefix_key
+end
+
+function _M.set(key, upstream, ttl, Rprefix)
+  local prefix_key = addPrefix(Rprefix, key)
   local res, err  = client:hmset(prefix_key,"upstream",upstream,"ttl",ttl)
   log(ngx.INFO,"res:", res,"err:",err,"p:",prefix_key,"u:",upstream,"t",ttl)
   if not res or res == ngx.null then
-    return nil, cjson.encode({"Redis api not configured ofr", prefix_key, err})
+    return nil, cjson.encode({"Redis api not configured for", prefix_key, err})
   end
   return res, nil
 end

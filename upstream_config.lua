@@ -4,7 +4,7 @@ local opts = {
   negative_ttl = 5,
   actualize_ttl = 5,
 }
-local r = router:new("dynx.resty.router.kv_cache",opts)
+local r = router:new("dynx.resty.router.redis_kv_cache",opts)
 
 local method = ngx.req.get_method()
 local ok = nil

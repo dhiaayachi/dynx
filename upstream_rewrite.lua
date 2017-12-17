@@ -1,5 +1,5 @@
 local router = require "dynx.resty.router"
-local r = router:new("dynx.resty.router.kv_cache")
+local r = router:new("dynx.resty.router.redis_kv_cache")
 local route, err = r:get_route(ngx.var.uri)
 if not route and err then
   return ngx.exit(503)

@@ -8,7 +8,7 @@ runner.tick = true
 runner.init({savestepsize = 3})
 jit.off()
 
-local kv_cache = require('dynx.resty.router.kv_cache')
+local kv_cache = require('dynx.resty.router.redis_kv_cache')
 local shcache = require('dynx.resty.shcache')
 local memm_store = require('doubles.in_mem_kv_store')
 
