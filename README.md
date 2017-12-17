@@ -1,7 +1,7 @@
 # dynx
--[![Build Status](https://travis-ci.org/dhiaayachi/dynx.svg?branch=master)](https://travis-ci.org/dhiaayachi/dynx)
+[![Build Status](https://travis-ci.org/dhiaayachi/dynx.svg?branch=master)](https://travis-ci.org/dhiaayachi/dynx)
 
--[![Coverage Status](https://coveralls.io/repos/github/dhiaayachi/dynx/badge.svg?branch=master)](https://coveralls.io/github/dhiaayachi/dynx?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/dhiaayachi/dynx/badge.svg?branch=master)](https://coveralls.io/github/dhiaayachi/dynx?branch=master)
 
 Dynamic Docker friendly gateway  
 
@@ -32,6 +32,8 @@ The current solution is based on https://github.com/tes/lua-resty-router
 - ~~Add unit test framework for the lua libraries~~
 - Write documentation with examples and use cases
 - Add swagger documentation for the API
+- Add an etcd backend support
+- Add regex support for upstream
 - ...
 
 
